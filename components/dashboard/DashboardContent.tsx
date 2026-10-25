@@ -42,11 +42,16 @@ const dashboardContent = {
 
 const featureDetails: Record<string, TranslationKey> = {
   marketOverview: "marketOverviewDesc",
-  goldAnalysis: "goldAnalysisDesc",
-  aiMarketInsights: "aiMarketInsightsDesc",
-  inventory: "inventoryDesc",
-  salesOverview: "salesOverviewDesc",
-  aiBusinessAssistant: "aiBusinessAssistantDesc",
+  goldAnalysis: "goldAnalysis",
+  aiMarketInsights: "aiMarketInsights",
+  inventory: "inventory",
+  salesOverview: "salesOverview",
+  aiBusinessAssistant: "aiBusinessAssistant",
+  goldAnalysisDesc: "goldAnalysisDesc",
+  aiMarketInsightsDesc: "aiMarketInsightsDesc",
+  inventoryDesc: "inventoryDesc",
+  salesOverviewDesc: "salesOverviewDesc",
+  aiBusinessAssistantDesc: "aiBusinessAssistantDesc",
   bulkCommodities: "bulkCommodities",
   ordersSuppliers: "ordersSuppliers",
 };
