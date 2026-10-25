@@ -6,6 +6,8 @@ type PageProps = {
   params: Promise<{ profession: string }>;
 };
 
+export const instant = false;
+
 export default async function DashboardPage({ params }: PageProps) {
   const { profession } = await params;
 
