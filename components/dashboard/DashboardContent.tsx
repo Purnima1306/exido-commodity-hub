@@ -110,7 +110,7 @@ useEffect(() => {
   async function loadContracts() {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/liquidity"
+        "https://exido-commodity-hub.onrender.com/api/mcx/liquidity"
       );
 
       if (!response.ok) {
@@ -149,7 +149,7 @@ useEffect(() => {
   async function loadValidation() {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/validation"
+        "https://exido-commodity-hub.onrender.com/api/mcx/validation"
       );
 
       if (!response.ok) {
@@ -169,7 +169,7 @@ useEffect(() => {
   async function loadBacktest() {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/backtest"
+        "https://exido-commodity-hub.onrender.com/api/mcx/backtest"
       );
 
       if (!response.ok) {
@@ -192,7 +192,7 @@ useEffect(() => {
   async function loadRelativeValue() {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/relative-value"
+        "https://exido-commodity-hub.onrender.com/api/mcx/relative-value"
       );
 
       if (!response.ok) {
@@ -212,7 +212,7 @@ useEffect(() => {
   async function loadLiquidityData() {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/liquidity"
+        "https://exido-commodity-hub.onrender.com/api/mcx/liquidity"
       );
 
       if (!response.ok) {
@@ -648,7 +648,7 @@ useEffect(() => {
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/mcx/analyze-csv",
+          "https://exido-commodity-hub.onrender.com/api/mcx/analyze-csv",
           {
             method: "POST",
             body: formData,
@@ -739,7 +739,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/mcx/risk-analysis",
+        "https://exido-commodity-hub.onrender.com/api/mcx/risk-analysis",
         {
           method: "POST",
           body: formData,
