@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import type { Language } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
+import VoiceControl from "@/components/VoiceControl";
 
 const languages = ["English", "Hindi", "Gujarati", "Tamil"];
 const translations: Record<string, Record<string, string>> = {
@@ -235,71 +236,115 @@ function changeLanguage(value: string) {
     },
   ]);
   const localizedMessages = messages.map((message, index) => {
-    if (message.role !== "assistant") return message;
+  if (message.role === "assistant" && index === 0) {
+    return { ...message, text: t.greeting };
+  }
 
-    if (index === 0) {
-      return { ...message, text: t.greeting };
-    }
+  return message;
+});
+async function speakReply(text: string, language: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    return;
+  }
 
-    return { ...message, text: t.autoAnswer };
-  });
+  const languageCodes: Record<string, string> = {
+    English: "en-IN",
+    Hindi: "hi-IN",
+    Gujarati: "gu-IN",
+    Tamil: "ta-IN",
+  };
 
-  function sendMessage(text = question) {
+  window.speechSynthesis.cancel();
+  console.log(
+  "Available Hindi voices:",
+  window.speechSynthesis
+    .getVoices()
+    .filter((voice) => voice.lang.toLowerCase().startsWith("hi"))
+    .map((voice) => ({
+      name: voice.name,
+      lang: voice.lang,
+    }))
+);
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = await new Promise<SpeechSynthesisVoice[]>((resolve) => {
+  const currentVoices = window.speechSynthesis.getVoices();
+
+  if (currentVoices.length > 0) {
+    resolve(currentVoices);
+    return;
+  }
+
+  window.speechSynthesis.onvoiceschanged = () => {
+    resolve(window.speechSynthesis.getVoices());
+  };
+});
+const targetLang = languageCodes[language] || "en-IN";
+
+const matchingVoice = voices.find(
+  (voice) => voice.lang.toLowerCase() === targetLang.toLowerCase()
+);
+
+utterance.lang = targetLang;
+
+if (matchingVoice) {
+  utterance.voice = matchingVoice;
+}
+
+  window.speechSynthesis.speak(utterance);
+}
+async function sendMessage(text = question) {
+  console.log("Send button working");
   const cleanText = text.trim();
   if (!cleanText) return;
 
-  const query = cleanText.toLowerCase();
-
-  let answer = "";
-
-  if (
-    query.includes("gold") ||
-    query.includes("mcx") ||
-    query.includes("price")
-  ) {
-    answer =
-      "Gold and MCX contracts can be evaluated using contract specifications, liquidity, margin requirements, and price movements. EXIDO does not currently have live market prices connected, so please verify current prices on an official market platform.";
-  } else if (
-    query.includes("margin") ||
-    query.includes("risk") ||
-    query.includes("liquidity")
-  ) {
-    answer =
-      "Before trading, review the required margin, market liquidity, contract size, and potential losses. These factors can change, so verify the latest details with your broker or official exchange information.";
-  } else if (
-    query.includes("retail") ||
-    query.includes("inventory") ||
-    query.includes("stock")
-  ) {
-    answer =
-      "For retail inventory management, track available stock, purchase costs, sales, and reorder levels. EXIDO currently provides a frontend demonstration; live inventory records are not connected.";
-  } else if (
-    query.includes("wholesale") ||
-    query.includes("supplier") ||
-    query.includes("bulk") ||
-    query.includes("order")
-  ) {
-    answer =
-      "For wholesale operations, compare supplier prices, order quantities, delivery terms, and inventory requirements. Actual supplier and order records are not connected to this demo.";
-  } else if (
-    query.includes("hello") ||
-    query.includes("hi") ||
-    query.includes("help")
-  ) {
-    answer =
-      "Hello! I'm the EXIDO demo assistant. Ask me about gold contracts, trading risks, retail inventory, or wholesale operations.";
-  } else {
-    answer =
-      "I can help with general questions about gold contracts, MCX trading considerations, retail inventory, and wholesale operations. My answers are demonstration responses, not live AI analysis or financial advice.";
-  }
+  setQuestion("");
 
   setMessages((previous) => [
     ...previous,
     { role: "user", text: cleanText },
-    { role: "assistant", text: answer },
   ]);
+  
+  
 
-  setQuestion("");
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: cleanText,
+        language: language,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI request failed.");
+    }
+
+    setMessages((previous) => [
+      ...previous,
+      { role: "assistant", text: data.reply },
+    ]);
+    speakReply(data.reply, language);
+  } catch (error) {
+    console.error("EXIDO chat error:", error);
+
+    setMessages((previous) => [
+      ...previous,
+      {
+        role: "assistant",
+        text: "Sorry, I couldn't connect to the AI. Please check your API key, model access, and internet connection.",
+      },
+    ]);
+  }
+}
+
+function handleVoiceTranscript(text: string) {
+  setQuestion(text);
 }
   
   
@@ -590,6 +635,7 @@ function changeLanguage(value: string) {
             </div>
 
             <div className="border-t border-blue-300/15 p-4">
+            <VoiceControl onTranscript={handleVoiceTranscript} />
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

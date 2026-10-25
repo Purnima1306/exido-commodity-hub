@@ -191,7 +191,11 @@ export default function AssistantPanel({ onClose, voiceFocusToken }: AssistantPa
 
       {/* Voice control + input (pinned to the bottom) */}
       <div className="space-y-3 border-t border-white/10 p-3">
-        <VoiceControl />
+        <VoiceControl 
+        onTranscript={(text) => {
+          void submitQuestion(text);
+        }}
+        />
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input
